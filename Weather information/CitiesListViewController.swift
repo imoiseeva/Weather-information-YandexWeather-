@@ -6,29 +6,19 @@
 //
 
 import UIKit
+import CoreLocation
 
 class CitiesListViewController: UITableViewController {
     
-    let city = Cities().citiesArray
-    
-//    private lazy var searchBar: UISearchBar = {
-//        let bar = UISearchBar()
-//       // bar.delegate = self
-//        bar.placeholder = "Search..."
-//        return bar
-//    }()
-    
-//    let searchBar: UISearchController = {
-//        let bar = UISearchController()
-//       // bar.delegate = self
-//        bar.title = "Search..."
-//        return bar
-//    }()
+    var city = WeatherModel()
+    var networkManager = NetworkManager.shared
+    var citiesListWeather: [WeatherModel] = []
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+ 
         setupNavigationBar()
         searchBar()
     }
@@ -54,7 +44,7 @@ class CitiesListViewController: UITableViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
-            action: #selector(addNewCity)
+            action: #selector(newCityAlert)
         )
         navigationController?.navigationBar.tintColor = .white
     }
@@ -65,87 +55,66 @@ class CitiesListViewController: UITableViewController {
         navigationItem.searchController?.searchBar.placeholder = "search"
         navigationItem.hidesSearchBarWhenScrolling = false
     }
-//
-//    private func addDoneButton() {
-//
-//
-//            let keyboardToolbar = UIToolbar()
-//            keyboardToolbar.sizeToFit()
-//
-//            let doneButton = UIBarButtonItem(
-//                title:"Done",
-//                style: .done,
-//                target: self,
-//                action: #selector(didTapDone)
-//            )
-//
-//            let flexBarButton = UIBarButtonItem(
-//                barButtonSystemItem: .flexibleSpace,
-//                target: nil,
-//                action: nil
-//            )
-//
-//            keyboardToolbar.items = [flexBarButton, doneButton]
-//
-//
-//    }
-//
-//    @objc private func didTapDone() {
-//
-//       present(ForecastDetailsViewController(), animated: true)
-//
-//      //  view.endEditing(true)
-//    }
-
+    
+    @objc private func newCityAlert() {
+        let alert = UIAlertController(title: "City", message: "Enter city name", preferredStyle: .alert)
+        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
+            guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
+            self.city.citiesArray.append(task)
+            self.tableView.reloadData()
+            self.getCitiesWeather()
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
+        alert.addTextField()
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        present(alert, animated: true)
+       
+    }
     
     @objc private func addNewCity() {
-        let cityDetails = ForecastDetailsViewController()
-        present(cityDetails, animated: true)
-    }
 
+//        let cityDetails = ForecastDetailsViewController()
+//        present(cityDetails, animated: true)
+    }
 }
 
 // MARK: - TAble View Data Source
 extension CitiesListViewController {
    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        city.count
+        city.citiesArray.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MyCell")
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MyCell", for: indexPath)
+        tableView.register(Cell.self, forCellReuseIdentifier: "MyCell")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MyCell", for: indexPath) as! Cell
         var content = cell.defaultContentConfiguration()
-        let task = city[indexPath.row]
-        content.text = task
-        content.secondaryText = city[indexPath.row]
-       
-        
+        let task = citiesListWeather[indexPath.row]
+        cell.setupSubvies()
+        cell.updateWeather(weather: task)
+
         cell.contentConfiguration = content
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let data = NetworkManager.shared.fetchData()
-//        print(data)
         let cityDetails = ForecastDetailsViewController()
-        cityDetails.cityTextLable.text = city[indexPath.row]
+        cityDetails.cityTextLable.text = city.citiesArray[indexPath.row]
         present(cityDetails, animated: true)
-    }
-}
+    }}
 
-// MARK: - Work with keyboard
-extension CitiesListViewController: UITextFieldDelegate {
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
-        view.endEditing(true)
-    }
 
-//    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-//        if textField{
-//
-//        } else {
-//            logInPressed()
-//        }
-//        return true
-//    }
+//MARK: - Get data from NatworkManager
+extension CitiesListViewController {
+    func getCitiesWeather() {
+        NetworkManager.shared.getCityWeather(cities: city.citiesArray) { [weak self] (index, weather) in
+            guard let self = self else { return }
+            self.citiesListWeather[index] = weather
+            self.citiesListWeather[index].cityName = self.city.citiesArray[index]
+            
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+    }
 }

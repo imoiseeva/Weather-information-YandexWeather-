@@ -8,10 +8,23 @@
 import Foundation
 
 struct WeatherModel {
-    let cityName: String
-    let temperature: Int
-    let temperatureNight: Int
-    let condition: String
+    var cityName: String = ""
+    var temperature: Int = 0
+    var temperatureNight: Int = 0
+    var condition: String = ""
+    
+    var citiesArray = [
+        "Moscow",
+        "London",
+        "NewYork",
+        "Melburn",
+        "Honkong",
+        "Paris",
+        "Berlin",
+        "Tallinn",
+        "Vilnius",
+        "Helsinki"
+    ]
     
     var conditionName: String {
         
