@@ -1,11 +1,13 @@
 //
-//  CityModel.swift
-//  WeatherData information
+//  WeatherDat.swift
+//  Weather information
 //
-//  Created by Irina Moiseeva on 11.06.2021.
+//  Created by Irina Moiseeva on 22.06.2021.
 //
 
-struct WeatherData: Codable {
+import Foundation
+
+struct WeatherData: Decodable {
     let fact: Fact
     let forecasts: Forecast
     let info: Info
@@ -61,5 +63,6 @@ struct Fact: Codable {
      let pressure_mm: Int
      let humidity: Int
      let condition: String
+    let icon: String
 }
 

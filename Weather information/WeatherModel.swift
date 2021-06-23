@@ -1,8 +1,8 @@
 //
-//  WeatherModel.swift
-//  WeatherData information
+//  WeatherMod.swift
+//  Weather information
 //
-//  Created by Irina Moiseeva on 15.06.2021.
+//  Created by Irina Moiseeva on 22.06.2021.
 //
 
 import Foundation
@@ -13,22 +13,18 @@ struct WeatherModel {
     var temperatureNight: Int = 0
     var condition: String = ""
     
-    var citiesArray = [
-        "Moscow",
-        "London",
-        "NewYork",
-        "Melburn",
-        "Honkong",
-        "Paris",
-        "Berlin",
-        "Tallinn",
-        "Vilnius",
-        "Helsinki"
-    ]
-    
+    init?(weatherData: WeatherData) {
+        cityName = weatherData.info.tzinfo.name
+        temperature = Int(weatherData.fact.temp)
+        condition = weatherData.fact.icon
+        temperatureNight = Int(weatherData.forecasts.parts.evening.tempMax)
+        condition = weatherData.fact.condition
+
+    }
+
     var conditionName: String {
         
-        switch conditionName {
+        switch condition {
         case "clear":
             return "sun.min"
         case "partly-cloudy":
@@ -71,5 +67,6 @@ struct WeatherModel {
             return "cloudy"
         }
     }
- 
+
+    init() {}
 }

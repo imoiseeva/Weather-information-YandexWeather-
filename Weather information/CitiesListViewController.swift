@@ -10,9 +10,12 @@ import CoreLocation
 
 class CitiesListViewController: UITableViewController {
     
-    var city = WeatherModel()
+    var city = Cities().citiesArray
     var networkManager = NetworkManager.shared
     var citiesListWeather: [WeatherModel] = []
+    var weatherModel = WeatherModel()
+
+   // var weatherData = WeatherData()
 
 
     override func viewDidLoad() {
@@ -21,6 +24,12 @@ class CitiesListViewController: UITableViewController {
  
         setupNavigationBar()
         searchBar()
+        getCitiesWeather()
+        tableView.reloadData()
+        
+        if citiesListWeather.isEmpty {
+            citiesListWeather = Array(repeating: weatherModel, count: city.count)
+        }
     }
     private func setupNavigationBar() {
         title = "Forecast"
@@ -47,12 +56,14 @@ class CitiesListViewController: UITableViewController {
             action: #selector(newCityAlert)
         )
         navigationController?.navigationBar.tintColor = .white
+        tableView.register(Cell.self, forCellReuseIdentifier: "MyCell")
     }
     
     func searchBar() {
         let searchController = UISearchController(searchResultsController: nil)
         navigationItem.searchController = searchController
         navigationItem.searchController?.searchBar.placeholder = "search"
+        navigationItem.searchController?.searchBar.tintColor = .white
         navigationItem.hidesSearchBarWhenScrolling = false
     }
     
@@ -60,9 +71,10 @@ class CitiesListViewController: UITableViewController {
         let alert = UIAlertController(title: "City", message: "Enter city name", preferredStyle: .alert)
         let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
             guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
-            self.city.citiesArray.append(task)
+            self.city.append(task)
+           // self.getCitiesWeather()
             self.tableView.reloadData()
-            self.getCitiesWeather()
+
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
         alert.addTextField()
@@ -77,41 +89,97 @@ class CitiesListViewController: UITableViewController {
 //        let cityDetails = ForecastDetailsViewController()
 //        present(cityDetails, animated: true)
     }
-}
-
-// MARK: - TAble View Data Source
-extension CitiesListViewController {
+    
+//    private func fetchData(from url: String?) {
+//        NetworkManager.shared.fetchData(from: url) {  weatherData in
+//            self.weatherData = weatherData
+//            self.tableView.reloadData()
+//        }
+//    }
    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        city.citiesArray.count
+        citiesListWeather.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         tableView.register(Cell.self, forCellReuseIdentifier: "MyCell")
         let cell = tableView.dequeueReusableCell(withIdentifier: "MyCell", for: indexPath) as! Cell
-        var content = cell.defaultContentConfiguration()
-        let task = citiesListWeather[indexPath.row]
+       
+        var weather = WeatherModel()
+        weather = citiesListWeather[indexPath.row]
+       
         cell.setupSubvies()
-        cell.updateWeather(weather: task)
+        cell.configureData(weather: weather)
+        
+//        var content = cell.defaultContentConfiguration()
+//        let city = citiesListWeather[indexPath.row]
+//        content.text = city.cityName
+//        cell.configureData(weather: weatherModel)
+//
+//        cell.contentConfiguration = content
+        
+        
+//        var weather = WeatherModel()
+//     //   weather = citiesListWeather[indexPath.row]
+//
+//        cell.configureData(weather: weather)
+//
+//
+//        weather.cityName = city[indexPath.row]
+//
+//
+//        let city = citiesListWeather[indexPath.row]
+//        cell.city = weatherModel.cityName
+//        if let weather = WeatherData(from: city as! Decoder) {
+//            cell.weather = weather
+//        }
+        
+//        cell.setupSubvies()
+//        cell.configureData(weather: weather)
 
-        cell.contentConfiguration = content
+      
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cityDetails = ForecastDetailsViewController()
-        cityDetails.cityTextLable.text = city.citiesArray[indexPath.row]
+       cityDetails.cityTextLable.text = city[indexPath.row]
         present(cityDetails, animated: true)
-    }}
+    }
 
 
 //MARK: - Get data from NatworkManager
-extension CitiesListViewController {
+//extension CitiesListViewController {
+//
+//    func showCityWeather(for city: String?, weatherData:@escaping(WeatherModel?)->()) {
+//
+//        if let city = city, city.count >= 2 {
+//
+//            //let locationManager = networkManager
+//            networkManager.getCoordinate(city: city, completion: { coordinates, error in
+//
+//                if let _ = coordinates {
+//
+//                    networkManager.fetchWeatherForCities(for: [city]) { (data) in
+//                        if data.isEmpty {
+//                            weatherData(nil)
+//                        } else {
+//                            weatherData(data.first)
+//                        }
+//                    }
+//                } else {
+//                    weatherData(nil)
+//                }
+//            }
+//        }
+//    }
+    
+    
     func getCitiesWeather() {
-        NetworkManager.shared.getCityWeather(cities: city.citiesArray) { [weak self] (index, weather) in
+        NetworkManager.shared.getCityWeather(cities: city) { [weak self] (index, weather) in
             guard let self = self else { return }
             self.citiesListWeather[index] = weather
-            self.citiesListWeather[index].cityName = self.city.citiesArray[index]
-            
+            self.citiesListWeather[index].cityName = self.city[index]
+
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
