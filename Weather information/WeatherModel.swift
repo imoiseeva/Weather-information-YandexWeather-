@@ -17,7 +17,7 @@ struct WeatherModel {
         cityName = weatherData.info.tzinfo.name
         temperature = Int(weatherData.fact.temp)
         condition = weatherData.fact.icon
-        temperatureNight = Int(weatherData.forecasts.parts.evening.tempMax)
+        temperatureNight = Int(weatherData.forecasts.first!.parts.evening.tempMax)
         condition = weatherData.fact.condition
 
     }
@@ -36,7 +36,7 @@ struct WeatherModel {
         case "drizzle":
             return "cloud.drizzle"
         case "light-rain":
-            return "cluod.rain"
+            return "cloud.rain"
         case "rain":
             return "cluod.rain"
         case "moderate-rain":

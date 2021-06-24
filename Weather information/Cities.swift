@@ -12,7 +12,7 @@ struct Cities {
         "Moscow",
         "London",
         "NewYork",
-        "Melburn",
+        "Rio",
         "Honkong",
         "Paris",
         "Berlin",

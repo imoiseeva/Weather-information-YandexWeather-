@@ -25,28 +25,27 @@ class NetworkManager {
     let keyHeader = "X-Yandex-API-Key"
     let key = "f4d456a6-3997-4ac6-91e6-978ce04191d1"
 
-    
+
     func getWeather(latitude: Double, longitude: Double, completion: @escaping (Result<WeatherModel, Error>) -> Void) {
                guard let urlR = URL(string: urlYandex) else { return }
                        let url = URL(string: "?lat=" + String(latitude) + "&lon="  + String(longitude), relativeTo: urlR)!
                        var request = URLRequest(url: url)
                       request.addValue(key, forHTTPHeaderField: keyHeader)
-        
-        URLSession.shared.dataTask(with: request) { (data, response, error) in
+
+        URLSession.shared.dataTask(with: request) { (data, _, error) in
             if let error = error {
                 print(error)
             }
-            
-            guard let response = response as? HTTPURLResponse else {
-                print(error)
-                return
-            }
-            
-          
+
+//            guard let response = response as? HTTPURLResponse else {
+//                print(error)
+//                return
+//            }
+
                 if let data = data {
                     do {
                         let json = try JSONDecoder().decode(WeatherData.self, from: data)
-  
+
                         guard let weather = WeatherModel(weatherData: json) else {return}
                         completion(.success(weather))
                     } catch {
@@ -118,10 +117,10 @@ class NetworkManager {
 }
 
   
-}
 
 
-//    func fetchData(from url: String?, with complition: @escaping (WeatherData) -> Void) {
+//
+//    func getWeather(from url: String?, with complition: @escaping (WeatherData) -> Void) {
 //        guard let stringURL = url else { return }
 //        guard let url = URL(string: stringURL) else { return }
 //
@@ -136,7 +135,7 @@ class NetworkManager {
 //            do {
 //                let weatherData = try JSONDecoder().decode(WeatherData.self, from: data)
 //                guard let weather = WeatherModel(weatherData: weatherData) else {return}
-//                completion(.success(weather))
+//
 //                DispatchQueue.main.async {
 //                    complition(weatherData)
 //                }
@@ -146,7 +145,7 @@ class NetworkManager {
 //
 //        }.resume()
 //    }
-
+}
 
 //    func fetchData(latitude: Double, longitude: Double, completion: @escaping (Result<WeatherModel, Error>) -> Void) {
 //

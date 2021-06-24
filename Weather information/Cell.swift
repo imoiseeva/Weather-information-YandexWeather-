@@ -86,7 +86,7 @@ class Cell: UITableViewCell {
             
             weatherIcon.topAnchor.constraint(equalTo: contentView.topAnchor),
             weatherIcon.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -offset),
-            weatherIcon.widthAnchor.constraint(equalToConstant: width),
+           // weatherIcon.widthAnchor.constraint(equalToConstant: width),
             weatherIcon.heightAnchor.constraint(equalTo: weatherIcon.widthAnchor),
             weatherIcon.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -offset)
         ])

@@ -9,7 +9,7 @@ import Foundation
 
 struct WeatherData: Decodable {
     let fact: Fact
-    let forecasts: Forecast
+    let forecasts: [Forecast]
     let info: Info
 }
 
@@ -23,7 +23,7 @@ struct Tzinfo: Codable {
     let name: String
 }
 
-struct Forecast: Codable {
+struct Forecast: Decodable  {
     let parts: Parts
 }
 
