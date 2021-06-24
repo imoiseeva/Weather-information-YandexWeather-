@@ -8,17 +8,20 @@
 import UIKit
 import CoreLocation
 
-class CitiesListViewController: UITableViewController {
+class CitiesListViewController: UITableViewController{
     
     var city = Cities().citiesArray
     var networkManager = NetworkManager.shared
     var citiesListWeather: [WeatherModel] = []
     var weatherModel = WeatherModel()
-
+    var forecastDetails = ForecastDetailsViewController()
+    
+    private let searchController = UISearchController(searchResultsController: nil)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
- 
+        
         setupNavigationBar()
         searchBar()
         getCitiesWeather()
@@ -27,6 +30,8 @@ class CitiesListViewController: UITableViewController {
         if citiesListWeather.isEmpty {
             citiesListWeather = Array(repeating: weatherModel, count: city.count)
         }
+        
+        searchController.searchBar.delegate = self
     }
     private func setupNavigationBar() {
         title = "Forecast"
@@ -57,14 +62,14 @@ class CitiesListViewController: UITableViewController {
     }
     
     func searchBar() {
-        let searchController = UISearchController(searchResultsController: nil)
         navigationItem.searchController = searchController
         navigationItem.searchController?.searchBar.placeholder = "search"
         navigationItem.searchController?.searchBar.tintColor = .white
         navigationItem.hidesSearchBarWhenScrolling = false
         
+        navigationItem.searchController?.searchBar.translatesAutoresizingMaskIntoConstraints = false
+
     }
-    
     @objc private func addNewCity() {
         let alert = UIAlertController(title: "City", message: "Enter city name", preferredStyle: .alert)
         let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
@@ -73,29 +78,16 @@ class CitiesListViewController: UITableViewController {
             self.city.append(task)
             self.getCitiesWeather()
             self.tableView.reloadData()
-
+            
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
         alert.addTextField()
         alert.addAction(saveAction)
         alert.addAction(cancelAction)
         present(alert, animated: true)
-       
+        
     }
     
-//    @objc private func addNewCity() {
-//
-//        let cityDetails = ForecastDetailsViewController()
-//       present(cityDetails, animated: true)
-//    }
-    
-//    private func fetchData(from url: String?) {
-//        NetworkManager.shared.fetchData(from: url) {  weatherData in
-//            self.weatherData = weatherData
-//            self.tableView.reloadData()
-//        }
-//    }
-   
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         citiesListWeather.count
     }
@@ -104,28 +96,23 @@ class CitiesListViewController: UITableViewController {
         
         tableView.register(Cell.self, forCellReuseIdentifier: "MyCell")
         let cell = tableView.dequeueReusableCell(withIdentifier: "MyCell", for: indexPath) as! Cell
-       
         weatherModel = citiesListWeather[indexPath.row]
         cell.setupSubvies()
         cell.configureData(weather: weatherModel)
-      
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cityDetails = ForecastDetailsViewController()
-        
-      // cityDetails.name = city[indexPath.row]
-//        cityDetails.temperature = weatherModel.temperature
-//        cityDetails.condition = weatherModel.condition
+        cityDetails.weather = citiesListWeather[indexPath.row]
         present(cityDetails, animated: true)
     }
- 
+    
     func getCitiesWeather() {
         NetworkManager.shared.getCityWeather(cities: city) { [weak self] (index, weather) in
             guard let self = self else { return }
             self.citiesListWeather[index] = weather
             self.citiesListWeather[index].cityName = self.city[index]
-
+            
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
@@ -133,31 +120,30 @@ class CitiesListViewController: UITableViewController {
     }
 }
 
-// MARK: - Search Bar protocols
-
+//MARK: - SearchBarDelegate
 extension CitiesListViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-        
-        if let cityName = searchBar.text?.capitalized, !cityName.isEmpty{
-                   let cityDetails = ForecastDetailsViewController()
-                  present(cityDetails, animated: true)
+        NetworkManager.shared.getWeatherForSeachedCity(city: searchBar.text ?? "") { [weak self] weather in
             
-//            NetworkManager.shared.locationError = { [weak self] locationError in
-//                guard let self = self else { return }
-//                self.alertIfLocationNotFound()
-//            }
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                if let cityName = searchBar.text?.capitalized, !cityName.isEmpty{
+                    self.forecastDetails.weather = weather
+                    self.forecastDetails.weather?.cityName = searchBar.text ?? ""
+                    self.present(self.forecastDetails, animated: true, completion: nil)
+                } else {
+                    let alert = UIAlertController(title: "", message: "Sorry, the city was not found", preferredStyle: UIAlertController.Style.alert)
+                    alert.addAction(UIAlertAction(title: "Ок", style: UIAlertAction.Style.default, handler: nil))
+                    self.present(alert, animated: true, completion: nil)
+                }
+            }
         }
+
     }
-    
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = nil
-        searchBar.resignFirstResponder()
-        searchBar.showsCancelButton = false
-    }
-    
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchBar.showsCancelButton = true
+        searchBar.text = ""
+        searchBar.endEditing(true)
     }
     
 }
+

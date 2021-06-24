@@ -19,9 +19,9 @@ struct WeatherModel {
         condition = weatherData.fact.icon
         temperatureNight = Int(weatherData.forecasts.first!.parts.evening.tempMax)
         condition = weatherData.fact.condition
-
+        
     }
-
+    
     var conditionName: String {
         
         switch condition {
@@ -38,9 +38,9 @@ struct WeatherModel {
         case "light-rain":
             return "cloud.rain"
         case "rain":
-            return "cluod.rain"
+            return "cloud.rain"
         case "moderate-rain":
-            return "cluod.rain"
+            return "cloud.rain"
         case "heavy-rain":
             return "cloud.heavyrain"
         case "continuous-heavy-rain":
@@ -67,6 +67,6 @@ struct WeatherModel {
             return "cloudy"
         }
     }
-
+    
     init() {}
 }

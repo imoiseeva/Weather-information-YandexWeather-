@@ -58,11 +58,11 @@ struct Evening: Codable {
 }
 
 struct Fact: Codable {
-     let temp: Int
-     let feels_like: Int
-     let pressure_mm: Int
-     let humidity: Int
-     let condition: String
+    let temp: Int
+    let feels_like: Int
+    let pressure_mm: Int
+    let humidity: Int
+    let condition: String
     let icon: String
 }
 

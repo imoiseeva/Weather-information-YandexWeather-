@@ -46,7 +46,6 @@ class Cell: UITableViewCell {
     
     private var weatherIcon: UIImageView = {
         let view = UIImageView()
-     //   view.image = UIImage(systemName: "")
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -54,7 +53,6 @@ class Cell: UITableViewCell {
     func setupViews(for city: String) {
         cityTextLable.text = city
         
-        // Настраиваем погоду:
         guard let weather = weather else { return }
         let temp = weather.temperature
         if temp > 0 {
@@ -62,9 +60,6 @@ class Cell: UITableViewCell {
         } else {
             temperatureLabel.text = " \(weather.temperature) ℃"
         }
-       // degreeLabel.isHidden = false
-        
-        //fetchAndSetConditionImage(from: weather)
     }
     
     func setupSubvies() {
@@ -86,7 +81,6 @@ class Cell: UITableViewCell {
             
             weatherIcon.topAnchor.constraint(equalTo: contentView.topAnchor),
             weatherIcon.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -offset),
-           // weatherIcon.widthAnchor.constraint(equalToConstant: width),
             weatherIcon.heightAnchor.constraint(equalTo: weatherIcon.widthAnchor),
             weatherIcon.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -offset)
         ])
@@ -94,49 +88,15 @@ class Cell: UITableViewCell {
     
     func configureData(weather: WeatherModel) {
         
-                self.cityTextLable.text = weather.cityName
-                self.weatherIcon.image = UIImage(systemName: weather.conditionName)
-                if weather.temperature > 0 {
-                    self.temperatureLabel.text = "+ \(weather.temperature) ℃"
-                } else {
-                    self.temperatureLabel.text = " \(weather.temperature) ℃"
-                }
+        self.cityTextLable.text = weather.cityName
+        self.weatherIcon.image = UIImage(systemName: weather.conditionName)
+        if weather.temperature > 0 {
+            self.temperatureLabel.text = "+ \(weather.temperature) ℃"
+        } else {
+            self.temperatureLabel.text = " \(weather.temperature) ℃"
+        }
     }
     
-    
-//    func configureData(weather: WeatherData) {
-//
-//        self.cityTextLable.text = weather.cityName
-//        self.weatherIcon.image = UIImage(systemName: weather.conditionName)
-//        if weather.temperature > 0 {
-//            self.temperatureLabel.text = "+ \(weather.temperature) ℃"
-//        } else {
-//            self.temperatureLabel.text = " \(weather.temperature) ℃"
-//        }
-//       // updateWeather(weather: weather)
-//    }
-//
-//    func fetchData(from url: String?) {
-//
-//        NetworkManager.shared.fetchData(from: url) {  weatherData in
-//            self.weatherData = weatherData
-//            self.cityTextLable.text = weatherData.info.tzinfo.name
-//            if weatherData.fact.temp > 0 {
-//                self.temperatureLabel.text = "+ \(weatherData.fact.temp) ℃"
-//            } else {
-//                self.temperatureLabel.text = "\(weatherData.fact.temp) ℃"
-//            }
-//            //self.tableView.reloadData()
-//        }
-//    }
-    
-//    func updateWeather(weather: WeatherModel) {
-//        DispatchQueue.main.async {
-//            self.cityTextLable.text = String(weather.cityName)
-//            self.temperatureLabel.text = String(weather.temperature)
-//            self.weatherIcon.image = UIImage(named: weather.conditionName)
-//        }
-//    }
     override func prepareForReuse() {
         super.prepareForReuse()
         if let view = weatherIcon.subviews.first {
